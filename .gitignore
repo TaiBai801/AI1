@@ -1,0 +1,30 @@
+.qclaw/
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.spec
+
+# 数据库（可选，如果你想重新初始化）
+# matchmaking.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 日志
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
