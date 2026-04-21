@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI联谊匹配系统 - 用户端</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      padding: 40px 0;
+      color: white;
+    }
+    .header h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .btn {
+      display: inline-block;
+      padding: 15px 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin: 30px 0;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 20px;
+      background: #f5f7fa;
+      border-radius: 12px;
+    }
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #667eea;
+    }
+    .stat-label {
+      color: #666;
+      margin-top: 5px;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .feature {
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 12px;
+    }
+    .feature h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+    .feature p {
+      color: #666;
+      line-height: 1.6;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255,255,255,0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 AI联谊匹配系统</h1>
+      <p>基于MBTI人格理论的智能配对</p>
+    </div>
+    
+    <div class="card" style="text-align: center;">
+      <h2 style="margin-bottom: 20px; color: #333;">欢迎来到AI联谊匹配活动！</h2>
+      <p style="color: #666; line-height: 1.8; margin-bottom: 30px;">
+        通过20道MBTI人格测试题，我们将为你找到最匹配的伙伴。<br>
+        无论是寻找志同道合的朋友，还是探索互补的缘分，AI算法都能帮你找到最佳配对。
+      </p>
+      <a href="/quiz" class="btn">开始问卷</a>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-value" id="totalCount">-</div>
+        <div class="stat-label">已报名人数</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">16</div>
+        <div class="stat-label">人格类型</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">20</div>
+        <div class="stat-label">测试题目</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2 style="margin-bottom: 20px; color: #333;">活动流程</h2>
+      <div class="features">
+        <div class="feature">
+          <h3>📝 填写问卷</h3>
+          <p>完成20道MBTI人格测试题，选择你的兴趣标签</p>
+        </div>
+        <div class="feature">
+          <h3>🔮 人格分析</h3>
+          <p>系统分析你的人格类型，生成专属报告</p>
+        </div>
+        <div class="feature">
+          <h3>🤝 AI匹配</h3>
+          <p>智能算法为你寻找最佳匹配对象</p>
+        </div>
+        <div class="feature">
+          <h3>💝 缘分揭晓</h3>
+          <p>查看匹配结果，开启你的联谊之旅</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>AI联谊匹配系统 © 2024 - 基于MBTI人格理论的智能匹配</p>
+    </div>
+  </div>
+  
+  <script>
+    // 获取统计数据
+    fetch('/api/stats')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('totalCount').textContent = data.total_participants;
+      })
+      .catch(() => {
+        document.getElementById('totalCount').textContent = '0';
+      });
+  </script>
+</body>
+</html>
