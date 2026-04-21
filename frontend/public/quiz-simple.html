@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI联谊匹配 - 填写问卷</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      padding: 30px 0;
+      color: white;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .step {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 10px;
+      font-weight: bold;
+      color: #666;
+    }
+    .step.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .step.completed {
+      background: #52c41a;
+      color: white;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .radio-group {
+      display: flex;
+      gap: 15px;
+    }
+    .radio-item {
+      flex: 1;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .radio-item:hover {
+      border-color: #667eea;
+    }
+    .radio-item.selected {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+    }
+    .question-box {
+      background: #f5f7fa;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+    .question-text {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .option {
+      display: block;
+      width: 100%;
+      padding: 15px 20px;
+      margin-bottom: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      text-align: left;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+    .option:hover {
+      border-color: #667eea;
+    }
+    .option.selected {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+    }
+    .btn {
+      display: inline-block;
+      padding: 15px 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #666;
+      margin-right: 10px;
+    }
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    .progress-bar {
+      margin-bottom: 20px;
+    }
+    .progress-text {
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .progress-line {
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s;
+    }
+    .interests-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .interest-item {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+    .interest-item:hover {
+      border-color: #667eea;
+    }
+    .interest-item.selected {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+    .hidden { display: none; }
+    .result-box {
+      text-align: center;
+      padding: 40px;
+    }
+    .personality-type {
+      font-size: 48px;
+      font-weight: bold;
+      color: #667eea;
+      margin: 20px 0;
+    }
+    .personality-title {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .traits {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .trait {
+      padding: 8px 16px;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255,255,255,0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📝 人格匹配问卷</h1>
+    </div>
+    
+    <!-- 步骤指示器 -->
+    <div class="step-indicator">
+      <div class="step active" id="step1">1</div>
+      <div class="step" id="step2">2</div>
+      <div class="step" id="step3">3</div>
+    </div>
+    
+    <!-- 步骤1: 基本信息 -->
+    <div class="card" id="step1-content">
+      <h2>基本信息</h2>
+      <div class="form-group">
+        <label>姓名 *</label>
+        <input type="text" id="name" placeholder="请输入你的姓名">
+      </div>
+      <div class="form-group">
+        <label>学号/编号 *</label>
+        <input type="text" id="studentId" placeholder="请输入学号或编号">
+      </div>
+      <div class="form-group">
+        <label>性别 *</label>
+        <div class="radio-group">
+          <div class="radio-item" onclick="selectGender('男')" data-gender="男">男</div>
+          <div class="radio-item" onclick="selectGender('女')" data-gender="女">女</div>
+        </div>
+      </div>
+      <div style="text-align: right;">
+        <button class="btn" onclick="goToStep2()">下一步</button>
+      </div>
+    </div>
+    
+    <!-- 步骤2: 人格测试 -->
+    <div class="card hidden" id="step2-content">
+      <div class="progress-bar">
+        <div class="progress-text">题目 <span id="q-current">1</span> / <span id="q-total">20</span></div>
+        <div class="progress-line">
+          <div class="progress-fill" id="progress-fill" style="width: 5%"></div>
+        </div>
+      </div>
+      
+      <div id="question-container"></div>
+      
+      <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="prevQuestion()">上一题</button>
+        <button class="btn" id="next-btn" onclick="nextQuestion()">下一题</button>
+      </div>
+    </div>
+    
+    <!-- 步骤3: 兴趣标签 -->
+    <div class="card hidden" id="step3-content">
+      <h2>选择你的兴趣标签</h2>
+      <p style="color: #666; margin-bottom: 20px;">选择你感兴趣的活动，这将帮助系统为你找到志同道合的伙伴</p>
+      
+      <div class="interests-grid" id="interests-container"></div>
+      
+      <p style="text-align: center; color: #667eea; font-weight: bold;">
+        已选择 <span id="selected-count">0</span> 个标签
+      </p>
+      
+      <div style="text-align: right; margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="goToStep2()">上一步</button>
+        <button class="btn" onclick="submitQuiz()">提交问卷</button>
+      </div>
+    </div>
+    
+    <!-- 结果页面 -->
+    <div class="card hidden" id="result-content">
+      <div class="result-box">
+        <h2>🎉 问卷提交成功！</h2>
+        <p style="color: #666; margin: 20px 0;">你的人格类型是</p>
+        <div class="personality-type" id="result-type">--</div>
+        <div class="personality-title" id="result-title">--</div>
+        <div class="traits" id="result-traits"></div>
+        <p style="color: #666; margin-top: 30px;">请等待组织者公布匹配结果</p>
+        <button class="btn" onclick="location.reload()" style="margin-top: 20px;">再填一份</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>AI联谊匹配系统 © 2024</p>
+  </div>
+
+  <script>
+    // 20道MBTI题目
+    const questions = [
+      // E/I 维度
+      {id: 1, text: "在社交场合中，你通常：", optionA: "感到兴奋，喜欢成为焦点", optionB: "感到疲惫，更喜欢安静观察", dimension: "E"},
+      {id: 2, text: "周末你更倾向于：", optionA: "和朋友聚会、参加活动", optionB: "独自在家看书或休息", dimension: "E"},
+      {id: 3, text: "认识新朋友时，你：", optionA: "主动打招呼，很快熟络", optionB: "等待别人先开口，慢慢熟悉", dimension: "E"},
+      {id: 4, text: "你的能量来源主要是：", optionA: "外部世界的人和活动", optionB: "内心的思考和独处", dimension: "E"},
+      {id: 5, text: "在团队讨论中，你：", optionA: "积极发言，边说边想", optionB: "先思考清楚再表达", dimension: "E"},
+      // S/N 维度
+      {id: 6, text: "你更关注：", optionA: "具体的事实和细节", optionB: "可能性和整体模式", dimension: "S"},
+      {id: 7, text: "学习新事物时，你更喜欢：", optionA: "按部就班，从基础开始", optionB: "先了解整体框架", dimension: "S"},
+      {id: 8, text: "你更信任：", optionA: "过去的经验和实际数据", optionB: "直觉和灵感", dimension: "S"},
+      {id: 9, text: "描述一件事时，你：", optionA: "注重具体细节", optionB: "喜欢比喻和联想", dimension: "S"},
+      {id: 10, text: "你更感兴趣的是：", optionA: "已经存在的事物", optionB: "未来可能的事物", dimension: "S"},
+      // T/F 维度
+      {id: 11, text: "做决定时，你更重视：", optionA: "逻辑和客观分析", optionB: "价值观和他人感受", dimension: "T"},
+      {id: 12, text: "朋友向你倾诉烦恼，你会：", optionA: "帮他分析问题，提供解决方案", optionB: "先倾听，给予情感支持", dimension: "T"},
+      {id: 13, text: "你更在意：", optionA: "事情是否正确合理", optionB: "是否和谐，大家是否开心", dimension: "T"},
+      {id: 14, text: "评价一个方案时，你更看重：", optionA: "效率和效果", optionB: "对人的影响", dimension: "T"},
+      {id: 15, text: "面对批评，你：", optionA: "关注批评是否有道理", optionB: "在意对方的语气和态度", dimension: "T"},
+      // J/P 维度
+      {id: 16, text: "你的生活方式更偏向：", optionA: "有计划、有条理", optionB: "灵活、随性", dimension: "J"},
+      {id: 17, text: "截止日期前，你通常：", optionA: "提前完成，不喜欢临时赶工", optionB: "在压力下效率更高", dimension: "J"},
+      {id: 18, text: "旅行时，你更喜欢：", optionA: "提前规划好行程", optionB: "边走边看，随机应变", dimension: "J"},
+      {id: 19, text: "你的桌面/房间通常是：", optionA: "整洁有序", optionB: "有点凌乱但你知道东西在哪", dimension: "J"},
+      {id: 20, text: "面对变化，你：", optionA: "需要一些时间适应", optionB: "觉得新鲜刺激", dimension: "J"}
+    ];
+    
+    // 兴趣标签
+    const interests = ["游戏", "音乐", "运动", "读书", "二次元", "美食", "旅行", "电影", "摄影", "编程", "绘画", "舞蹈", "桌游", "剧本杀", "密室逃脱", "K歌", "露营", "健身", "瑜伽", "烘焙", "咖啡", "宠物", "手工", "写作"];
+    
+    // 人格类型描述
+    const personalityDesc = {
+      "ISTJ": {title: "检查者", traits: ["可靠", "实际", "有条理"]},
+      "ISFJ": {title: "保护者", traits: ["温暖", "负责", "细心"]},
+      "INFJ": {title: "提倡者", traits: ["理想主义", "洞察力强", "有创造力"]},
+      "INTJ": {title: "建筑师", traits: ["独立", "有远见", "战略性思维"]},
+      "ISTP": {title: "鉴赏家", traits: ["灵活", "理性", "善于解决问题"]},
+      "ISFP": {title: "探险家", traits: ["艺术气质", "敏感", "活在当下"]},
+      "INFP": {title: "调停者", traits: ["理想主义", "共情能力强", "有创造力"]},
+      "INTP": {title: "逻辑学家", traits: ["好奇", "分析能力强", "客观"]},
+      "ESTP": {title: "企业家", traits: ["活力充沛", "务实", "善于应变"]},
+      "ESFP": {title: "表演者", traits: ["热情", "友好", "喜欢社交"]},
+      "ENFP": {title: "竞选者", traits: ["热情洋溢", "有创意", "善于激励"]},
+      "ENTP": {title: "辩论家", traits: ["聪明", "好奇", "喜欢挑战"]},
+      "ESTJ": {title: "总经理", traits: ["组织能力强", "果断", "实际"]},
+      "ESFJ": {title: "执政官", traits: ["热心", "有责任心", "善于合作"]},
+      "ENFJ": {title: "主人公", traits: ["有魅力", "有同理心", "善于领导"]},
+      "ENTJ": {title: "指挥官", traits: ["果断", "有远见", "天生的领导者"]}
+    };
+    
+    let currentStep = 1;
+    let currentQuestion = 0;
+    let answers = {};
+    let selectedInterests = [];
+    let formData = {name: '', studentId: '', gender: ''};
+    
+    // 初始化兴趣标签
+    function initInterests() {
+      const container = document.getElementById('interests-container');
+      container.innerHTML = interests.map(i => 
+        `<div class="interest-item" onclick="toggleInterest('${i}')" data-interest="${i}">${i}</div>`
+      ).join('');
+    }
+    
+    // 选择性别
+    function selectGender(gender) {
+      formData.gender = gender;
+      document.querySelectorAll('.radio-item').forEach(el => {
+        el.classList.toggle('selected', el.dataset.gender === gender);
+      });
+    }
+    
+    // 跳转到步骤2
+    function goToStep2() {
+      formData.name = document.getElementById('name').value;
+      formData.studentId = document.getElementById('studentId').value;
+      
+      if (!formData.name || !formData.studentId || !formData.gender) {
+        alert('请填写完整信息');
+        return;
+      }
+      
+      currentStep = 2;
+      updateStepIndicator();
+      document.getElementById('step1-content').classList.add('hidden');
+      document.getElementById('step2-content').classList.remove('hidden');
+      renderQuestion();
+    }
+    
+    // 渲染题目
+    function renderQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById('q-current').textContent = currentQuestion + 1;
+      document.getElementById('q-total').textContent = questions.length;
+      document.getElementById('progress-fill').style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
+      
+      const container = document.getElementById('question-container');
+      container.innerHTML = `
+        <div class="question-box">
+          <div class="question-text">${q.text}</div>
+          <button class="option ${answers[q.id] === 'A' ? 'selected' : ''}" onclick="selectAnswer('A')">
+            <strong>A.</strong> ${q.optionA}
+          </button>
+          <button class="option ${answers[q.id] === 'B' ? 'selected' : ''}" onclick="selectAnswer('B')">
+            <strong>B.</strong> ${q.optionB}
+          </button>
+        </div>
+      `;
+      
+      document.getElementById('next-btn').textContent = 
+        currentQuestion === questions.length - 1 ? '完成' : '下一题';
+    }
+    
+    // 选择答案
+    function selectAnswer(ans) {
+      answers[questions[currentQuestion].id] = ans;
+      renderQuestion();
+    }
+    
+    // 下一题
+    function nextQuestion() {
+      if (!answers[questions[currentQuestion].id]) {
+        alert('请选择一个选项');
+        return;
+      }
+      
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+      } else {
+        goToStep3();
+      }
+    }
+    
+    // 上一题
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+      } else {
+        currentStep = 1;
+        updateStepIndicator();
+        document.getElementById('step2-content').classList.add('hidden');
+        document.getElementById('step1-content').classList.remove('hidden');
+      }
+    }
+    
+    // 跳转到步骤3
+    function goToStep3() {
+      currentStep = 3;
+      updateStepIndicator();
+      document.getElementById('step2-content').classList.add('hidden');
+      document.getElementById('step3-content').classList.remove('hidden');
+      initInterests();
+    }
+    
+    // 切换兴趣标签
+    function toggleInterest(interest) {
+      const idx = selectedInterests.indexOf(interest);
+      if (idx > -1) {
+        selectedInterests.splice(idx, 1);
+      } else {
+        selectedInterests.push(interest);
+      }
+      
+      document.querySelectorAll('.interest-item').forEach(el => {
+        el.classList.toggle('selected', selectedInterests.includes(el.dataset.interest));
+      });
+      
+      document.getElementById('selected-count').textContent = selectedInterests.length;
+    }
+    
+    // 更新步骤指示器
+    function updateStepIndicator() {
+      for (let i = 1; i <= 3; i++) {
+        const el = document.getElementById('step' + i);
+        el.classList.remove('active', 'completed');
+        if (i < currentStep) el.classList.add('completed');
+        else if (i === currentStep) el.classList.add('active');
+      }
+    }
+    
+    // 计算人格类型
+    function calculatePersonality() {
+      let scores = {E: 0, S: 0, T: 0, J: 0};
+      
+      questions.forEach(q => {
+        const ans = answers[q.id];
+        if (ans === 'A') {
+          scores[q.dimension]++;
+        }
+      });
+      
+      let type = '';
+      type += scores.E >= 3 ? 'E' : 'I';
+      type += scores.S >= 3 ? 'S' : 'N';
+      type += scores.T >= 3 ? 'T' : 'F';
+      type += scores.J >= 3 ? 'J' : 'P';
+      
+      return type;
+    }
+    
+    // 提交问卷
+    function submitQuiz() {
+      if (selectedInterests.length === 0) {
+        alert('请至少选择一个兴趣标签');
+        return;
+      }
+      
+      const personalityType = calculatePersonality();
+      const desc = personalityDesc[personalityType];
+      
+      // 准备提交数据
+      const quizAnswers = Object.entries(answers).map(([id, answer]) => ({
+        question_id: parseInt(id),
+        answer: answer
+      }));
+      
+      const submitData = {
+        name: formData.name,
+        student_id: formData.studentId,
+        gender: formData.gender,
+        quiz_answers: quizAnswers,
+        interests: selectedInterests
+      };
+      
+      // 提交到后端
+      fetch('/api/participants', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(submitData)
+      })
+      .then(r => r.json())
+      .then(data => {
+        // 显示结果
+        document.getElementById('step3-content').classList.add('hidden');
+        document.getElementById('result-content').classList.remove('hidden');
+        document.getElementById('result-type').textContent = data.personality_type;
+        document.getElementById('result-title').textContent = data.description.title;
+        document.getElementById('result-traits').innerHTML = 
+          data.description.traits.map(t => `<span class="trait">${t}</span>`).join('');
+      })
+      .catch(err => {
+        alert('提交失败，请重试');
+        console.error(err);
+      });
+    }
+    
+    // 初始化
+    initInterests();
+  </script>
+</body>
+</html>
